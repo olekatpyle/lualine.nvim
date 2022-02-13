@@ -634,18 +634,6 @@ For example:
 It's useful when you're using rendering mode 2/3 in tabs.
 To unname a tablage run `:LualineRenameTab` without argument.
 
-#### Tabline as statusline
-You can also completely move your statusline to a tabline by configuring
-`lualine.tabline` and disabling `lualine.sections` and `lualine.inactive_sections`:
-
-```lua
-tabline = {
-......
-  },
-sections = {},
-inactive_sections = {},
-```
-
 If you want a more sophisticated tabline you can use other
 tabline plugins with lualine too, for example:
 

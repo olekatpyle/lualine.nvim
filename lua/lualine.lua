@@ -11,6 +11,10 @@ local modules = lualine_require.lazy_require {
 }
 local config -- Stores currently applied config
 local new_config = true -- Stores config that will be applied
+local cache = { -- caches some states for later resoration
+  old_statusline = { statusline = '', laststatus = 2 },
+  old_tabline = { tabline = '', showtabline = 1 },
+}
 
 -- Helper for apply_transitional_separators()
 --- finds first applied highlight group fter str_checked in status
@@ -253,14 +257,22 @@ local function setup_theme()
     autocmd lualine OptionSet background lua require'lualine'.setup()]])
 end
 
+local Tabline_timer = vim.loop.new_timer()
 --- Sets &tabline option to lualine
 local function set_tabline()
   if next(config.tabline) ~= nil then
-    vim.go.tabline = "%{%v:lua.require'lualine'.tabline()%}"
-    vim.go.showtabline = 2
-    vim.schedule(function()
-      vim.api.nvim_command('redrawtabline')
-    end)
+    vim.cmd('autocmd lualine VimResized * redrawtabline')
+    Tabline_timer:start(
+      0,
+      1000,
+      vim.schedule_wrap(function()
+        vim.cmd('redrawtabline')
+      end)
+    )
+  else
+    vim.go.tabline = cache.old_tabline.tabline
+    vim.go.showtabline = cache.old_tabline.showtabline
+    Tabline_timer:stop()
   end
 end
 
@@ -270,8 +282,8 @@ local function set_statusline()
   if next(config.sections) ~= nil or next(config.inactive_sections) ~= nil then
     vim.cmd('autocmd lualine VimResized * redrawstatus')
   else
-    vim.go.statusline = ''
-    vim.go.laststatus = 0
+    vim.go.statusline = cache.old_statusline.statusline
+    vim.go.laststatus = cache.old_statusline.laststatus
   end
 end
 
@@ -340,8 +352,22 @@ end
 local function setup(user_config)
   new_config = true
   config = modules.config_module.apply_configuration(user_config)
-  vim.go.statusline = "%{%v:lua.require'lualine'.statusline()%}"
-  vim.go.laststatus = 2
+  if vim.go.statusline ~= "%{%v:lua.require'lualine'.statusline()%}" then
+    cache.old_statusline = {
+      statusline = vim.go.statusline,
+      laststatus = vim.go.laststatus,
+    }
+  end
+  if vim.go.tabline ~= "%{%v:lua.require'lualine'.tabline()%}" then
+    cache.old_tabline = {
+      tabline = vim.go.tabline,
+      showtabline = vim.go.showtabline,
+    }
+  end
+  vim.opt.statusline = "%{%v:lua.require'lualine'.statusline()%}"
+  vim.opt.laststatus = 2
+  vim.opt.tabline = "%{%v:lua.require'lualine'.tabline()%}"
+  vim.opt.showtabline = 2
 end
 
 return {
