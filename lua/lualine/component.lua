@@ -51,21 +51,13 @@ end
 function M:create_option_highlights()
   -- set custom highlights
   if self.options.color then
-    self.options.color_highlight = highlight.create_component_highlight_group(
+    self.options.color_highlight = self:set_hl(
       self.options.color,
-      self.options.component_name,
-      self.options,
-      false
     )
   end
   -- setup icon highlight
   if type(self.options.icon) == 'table' and self.options.icon.color then
-    self.options.icon_color_highlight = highlight.create_component_highlight_group(
-      self.options.icon.color,
-      self.options.component_name .. 'icon',
-      self.options,
-      false
-    )
+    self.options.icon_color_highlight = self:set_hl(self.options.icon.color)
   end
 end
 
@@ -100,7 +92,7 @@ end
 function M:apply_highlights(default_highlight)
   if self.options.color_highlight then
     local hl_fmt
-    hl_fmt, M.color_fn_cache = highlight.component_format_highlight(self.options.color_highlight)
+    hl_fmt, M.color_fn_cache = self:get_hl(self.options.color_highlight)
     self.status = hl_fmt .. self.status
   end
   if type(self.options.separator) ~= 'table' and self.status:find('%%#') then
@@ -127,7 +119,7 @@ function M:apply_icon()
     end
     if self.options.icon_color_highlight then
       self.status = table.concat {
-        highlight.component_format_highlight(self.options.icon_color_highlight),
+        self:get_hl(self.options.icon_color_highlight),
         icon,
         self:get_default_hl(),
         ' ',
@@ -187,12 +179,20 @@ end
 
 function M:get_default_hl()
   if self.options.color_highlight then
-    return highlight.component_format_highlight(self.options.color_highlight)
+    return self:get_hl(self.options.color_highlight)
   elseif self.default_hl then
     return self.default_hl
   else
     return highlight.format_highlight(self.options.self.section)
   end
+end
+
+function M:set_hl(color)
+  return highlight.create_component_highlight_group(color, self.options.component_name, self.options, false)
+end
+
+function M:get_hl(hl_token)
+  return highlight.component_format_highlight(hl_token)
 end
 
 -- luacheck: push no unused args
