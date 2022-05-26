@@ -11,8 +11,7 @@ local colors = {
   pink          = '#ff5faf',
   purple        = '#d75fff',
   darkpurple    = '#875faf',
-  aqua          = '#3de5a7',    --'#009966',
-  darkaqua      = '#009966',
+  aqua      = '#009966',
   yellow        = '#f0f571',
 }
 
@@ -25,7 +24,7 @@ return {
     y = {bg = colors.gray_0, fg = colors.white},
   },
   insert = {
-    a = {bg = colors.darkaqua, fg = colors.white, gui = 'bold'},
+    a = {bg = colors.aqua, fg = colors.white, gui = 'bold'},
     b = {bg = colors.purple, fg = colors.white},
     c = {bg = colors.purple, fg = colors.white},
     x = {bg = colors.purple, fg = colors.white},
@@ -45,12 +44,12 @@ return {
     z = {bg = colors.rose, fg = colors.gray_1},
   },
   command = {
-    a = {bg = colors.darkaqua, fg = colors.white, gui = 'bold'},
+    a = {bg = colors.aqua, fg = colors.white, gui = 'bold'},
     b = {bg = colors.darkpurple, fg = colors.white},
     c = {bg = colors.gray_1, fg = colors.purple},
     x = {bg = colors.gray_1, fg = colors.purple},
     y = {bg = colors.gray_1, fg = colors.white},
-    z = {bg = colors.darkaqua, fg = colors.white, gui = 'bold'},
+    z = {bg = colors.aqua, fg = colors.white, gui = 'bold'},
   },
   inactive = {
     a = {bg = colors.gray_1, fg = colors.white, gui = 'bold'},
