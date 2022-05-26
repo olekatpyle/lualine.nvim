@@ -7,6 +7,7 @@ local colors = {
   white         = '#ffffff',
   gray_0        = '#3a3a3a',
   gray_1        = '#282828',
+  black         = '#000000',
   rose          = '#ce537a',
   pink          = '#ff5faf',
   purple        = '#d75fff',
@@ -17,10 +18,10 @@ local colors = {
 
 return {
   normal = {
-    a = {bg = colors.gray_0, fg = colors.white, gui = 'bold'},
-    b = {bg = colors.gray_0, fg = colors.white},
-    c = {bg = colors.purple, fg = colors.gray_0},
-    y = {bg = colors.gray_0, fg = colors.pink},
+    a = {bg = colors.black, fg = colors.white, gui = 'bold'},
+    b = {bg = colors.gray_1, fg = colors.pink},
+    c = {bg = colors.purple, fg = colors.gray_1},
+    y = {bg = colors.gray_1, fg = colors.pink},
   },
   insert = {
     a = {bg = colors.aqua, fg = colors.white, gui = 'bold'},
