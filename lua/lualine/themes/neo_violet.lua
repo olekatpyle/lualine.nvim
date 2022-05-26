@@ -7,7 +7,6 @@ local colors = {
   white         = '#ffffff',
   gray_0        = '#3a3a3a',
   gray_1        = '#282828',
-  black         = '#000000',
   rose          = '#ce537a',
   pink          = '#ff5faf',
   purple        = '#d75fff',
@@ -47,9 +46,9 @@ return {
   command = {
     a = {bg = colors.aqua, fg = colors.white, gui = 'bold'},
     b = {bg = colors.darkpurple, fg = colors.white},
-    c = {bg = colors.gray_1, fg = colors.white},
-    x = {bg = colors.black, fg = colors.white},
-    y = {bg = colors.black, fg = colors.white},
+    c = {bg = colors.gray_1, fg = colors.purple},
+    x = {bg = colors.gray_1, fg = colors.purple},
+    y = {bg = colors.gray_1, fg = colors.white},
     z = {bg = colors.aqua, fg = colors.white, gui = 'bold'},
   },
   inactive = {
