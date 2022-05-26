@@ -47,7 +47,7 @@ return {
     a = {bg = colors.aqua, fg = colors.white, gui = 'bold'},
     b = {bg = colors.darkpurple, fg = colors.white},
     c = {bg = colors.gray_1, fg = colors.white},
-    x = {bg = colors.gray_1, fg = colors.white},
+    x = {bg = colors.black, fg = colors.white},
     y = {bg = colors.black, fg = colors.white},
     z = {bg = colors.aqua, fg = colors.white, gui = 'bold'},
   },
