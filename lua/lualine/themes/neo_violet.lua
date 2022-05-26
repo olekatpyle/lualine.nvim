@@ -50,7 +50,7 @@ return {
     c = {bg = colors.gray_1, fg = colors.purple},
     x = {bg = colors.gray_1, fg = colors.purple},
     y = {bg = colors.gray_1, fg = colors.white},
-    z = {bg = colors.aqua, fg = colors.white, gui = 'bold'},
+    z = {bg = colors.darkaqua, fg = colors.white, gui = 'bold'},
   },
   inactive = {
     a = {bg = colors.gray_1, fg = colors.white, gui = 'bold'},
