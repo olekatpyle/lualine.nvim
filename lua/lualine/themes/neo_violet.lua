@@ -25,7 +25,7 @@ return {
   },
   insert = {
     a = {bg = colors.aqua, fg = colors.white, gui = 'bold'},
-    b = {bg = colors.purple, fg = colors.white},
+    b = {bg = colors.darkpurple, fg = colors.white},
     c = {bg = colors.purple, fg = colors.white},
     x = {bg = colors.purple, fg = colors.white},
     y = {bg = colors.darkpurple, fg = colors.white},
@@ -33,7 +33,7 @@ return {
   },
   visual = {
     a = {bg = colors.yellow, fg = colors.gray_1, gui = 'bold'},
-    b = {bg = colors.purple, fg = colors.white, gui = 'bold'},
+    b = {bg = colors.darkpurple, fg = colors.white, gui = 'bold'},
     c = {bg = colors.purple, fg = colors.white, gui = 'bold'},
     y = {bg = colors.darkpurple, fg = colors.white},
   },
