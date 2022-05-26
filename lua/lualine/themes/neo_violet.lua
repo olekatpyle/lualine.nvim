@@ -18,11 +18,11 @@ local colors = {
 
 return {
   normal = {
-    a = {bg = colors.black, fg = colors.white, gui = 'bold'},
+    a = {bg = colors.aqua, fg = colors.white, gui = 'bold'},
     b = {bg = colors.darkpurple, fg = colors.white},
-    c = {bg = colors.purple, fg = colors.aqua, gui = 'bold'},
+    c = {bg = colors.purple, fg = colors.lightblue, gui = 'bold'},
     x = {bg = colors.purple, fg = colors.aqua, gui = 'bold'},
-    y = {bg = colors.gray_1, fg = colors.pink},
+    y = {bg = colors.aqua, fg = colors.pink},
   },
   insert = {
     a = {bg = colors.aqua, fg = colors.white, gui = 'bold'},
