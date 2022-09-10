@@ -18,14 +18,14 @@ local colors = {
 return {
   normal = {
     a = { bg = colors.purple, fg = colors.gray_1, gui = 'bold' },
-    b = { bg = colors.gray_0, fg = colors.white },
+    b = { bg = colors.gray_1, fg = colors.white },
     c = { bg = colors.gray_1, fg = colors.aqua },
     x = { bg = colors.gray_1, fg = colors.aqua },
     y = { bg = colors.gray_0, fg = colors.white },
   },
   insert = {
     a = { bg = colors.aqua, fg = colors.white, gui = 'bold' },
-    b = { bg = colors.gray_0, fg = colors.white },
+    b = { bg = colors.darkpurple, fg = colors.white },
     c = { bg = colors.purple, fg = colors.white },
     x = { bg = colors.purple, fg = colors.white },
     y = { bg = colors.darkpurple, fg = colors.white },
@@ -33,7 +33,7 @@ return {
   },
   visual = {
     a = { bg = colors.yellow, fg = colors.gray_1, gui = 'bold' },
-    b = { bg = colors.gray_0, fg = colors.white, gui = 'bold' },
+    b = { bg = colors.darkpurple, fg = colors.white, gui = 'bold' },
     c = { bg = colors.purple, fg = colors.white, gui = 'bold' },
     y = { bg = colors.darkpurple, fg = colors.white },
   },
@@ -53,7 +53,7 @@ return {
   },
   inactive = {
     a = { bg = colors.gray_1, fg = colors.white, gui = 'bold' },
-    b = { bg = colors.gray_0, fg = colors.lightblue },
+    b = { bg = colors.darkpurple, fg = colors.lightblue },
     c = { bg = colors.gray_0, fg = colors.lightblue },
     z = { bg = colors.aqua, fg = colors.pink },
   },
