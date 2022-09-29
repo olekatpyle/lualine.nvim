@@ -1,11 +1,19 @@
 -- Copyright (c) 2020-2021 shadmansaleh
 -- MIT license, see LICENSE for more details.
-local require = require('lualine_require').require
-local highlight = require('lualine.highlight')
+local lualine_require = require('lualine_require')
+local require = lualine_require.require
 local M = require('lualine.utils.class'):extend()
+local modules = lualine_require.lazy_require {
+  highlight = 'lualine.highlight',
+  utils_notices = 'lualine.utils.notices',
+  fn_store = 'lualine.utils.fn_store',
+}
 
 -- Used to provide a unique id for each component
 local component_no = 1
+function M._reset_components()
+  component_no = 1
+end
 
 -- variable to store component output for manipulation
 M.status = ''
@@ -31,10 +39,11 @@ function M:init(options)
   self.component_no = component_no
   self:set_separator()
   self:create_option_highlights()
+  self:set_on_click()
 end
 
 ---sets the default separator for component based on whether the component
----is in left sections or right sections when separator option is omited.
+---is in left sections or right sections when separator option is omitted.
 function M:set_separator()
   if self.options.separator == nil then
     if self.options.component_separators then
@@ -59,6 +68,20 @@ function M:create_option_highlights()
   end
 end
 
+---Setup on click function so they can be added during drawing.
+function M:set_on_click()
+  if self.options.on_click ~= nil then
+    if vim.fn.has('nvim-0.8') == 0 then
+      modules.utils_notices.add_notice(
+        '### Options.on_click\nSorry `on_click` can only be used in neovim 0.8 or higher.\n'
+      )
+      self.options.on_click = nil
+      return
+    end
+    self.on_click_id = modules.fn_store.register_fn(self.component_no, self.options.on_click)
+  end
+end
+
 ---adds spaces to left and right of a component
 function M:apply_padding()
   local padding = self.options.padding
@@ -73,7 +96,7 @@ function M:apply_padding()
   end
   if l_padding then
     if self.status:find('%%#.*#') == 1 then
-      -- When component has changed the highlight at begining
+      -- When component has changed the highlight at beginning
       -- we will add the padding after the highlight
       local pre_highlight = vim.fn.matchlist(self.status, [[\(%#.\{-\}#\)]])[2]
       self.status = pre_highlight .. string.rep(' ', l_padding) .. self.status:sub(#pre_highlight + 1, #self.status)
@@ -95,10 +118,10 @@ function M:apply_highlights(default_highlight)
   end
   if type(self.options.separator) ~= 'table' and self.status:find('%%#') then
     -- Apply default highlight only when we aren't applying trans sep and
-    -- the component has changed it's hl. since we won't be applying
-    -- regular sep in those cases so ending with default hl isn't neccessay
+    -- the component has changed it's hl. Since we won't be applying
+    -- regular sep in those cases so ending with default hl isn't necessary
     self.status = self.status .. default_highlight
-    -- Also put it in applied sep so when sep get struped so does the hl
+    -- Also put it in applied sep so when sep get striped so does the hl
     self.applied_separator = default_highlight
   end
   -- Prepend default hl when the component doesn't start with hl otherwise
@@ -108,7 +131,7 @@ function M:apply_highlights(default_highlight)
   end
 end
 
----apply icon to component (appends/prepemds component with icon)
+---apply icon to component (appends/prepends component with icon)
 function M:apply_icon()
   local icon = self.options.icon
   if self.options.icons_enabled and icon then
@@ -178,6 +201,13 @@ function M:apply_section_separators()
   end
 end
 
+---Add on click funtion description to already drawn item
+function M:apply_on_click()
+  if self.on_click_id then
+    self.status = self:format_fn(self.on_click_id, self.status)
+  end
+end
+
 ---remove separator from tail of this component.
 ---called by lualine.utils.sections.draw_section to manage unnecessary separators
 function M:strip_separator()
@@ -195,24 +225,32 @@ function M:get_default_hl()
   elseif self.default_hl then
     return self.default_hl
   else
-    return highlight.format_highlight(self.options.self.section)
+    return modules.highlight.format_highlight(self.options.self.section)
   end
 end
 
 ---create a lualine highlight for color
 ---@param color table|string|function defined color for hl
 ---@param hint string|nil hint for hl name
----@return table an identifier to later retrive the hl for application
+---@return table an identifier to later retrieve the hl for application
 function M:create_hl(color, hint)
   hint = hint and self.options.component_name .. '_' .. hint or self.options.component_name
-  return highlight.create_component_highlight_group(color, hint, self.options, false)
+  return modules.highlight.create_component_highlight_group(color, hint, self.options, false)
 end
 
----Get stl formated hl group for hl_token
----@param hl_token table indentifier received from create_hl or create_component_highlight_group
----@return string stl formated hl group for hl_token
+---Get stl formatted hl group for hl_token
+---@param hl_token table identifier received from create_hl or create_component_highlight_group
+---@return string stl formatted hl group for hl_token
 function M:format_hl(hl_token)
-  return highlight.component_format_highlight(hl_token)
+  return modules.highlight.component_format_highlight(hl_token)
+end
+
+---Wrap str with click format for function of id
+---@param id number
+---@param str string
+---@return string
+function M:format_fn(id, str)
+  return string.format("%%%d@v:lua.require'lualine.utils.fn_store'.call_fn@%s%%T", id, str)
 end
 
 -- luacheck: push no unused args
@@ -223,7 +261,7 @@ function M:update_status(is_focused) end
 ---driver code of the class
 ---@param default_highlight string default hl group of section where component resides
 ---@param is_focused boolean|number whether drawing for active or inactive statusline.
----@return string stl formated rendering string for component
+---@return string stl formatted rendering string for component
 function M:draw(default_highlight, is_focused)
   self.status = ''
   self.applied_separator = ''
@@ -240,6 +278,7 @@ function M:draw(default_highlight, is_focused)
     self.status = status
     self:apply_icon()
     self:apply_padding()
+    self:apply_on_click()
     self:apply_highlights(default_highlight)
     self:apply_section_separators()
     self:apply_separator()

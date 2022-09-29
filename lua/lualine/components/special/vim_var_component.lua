@@ -1,16 +1,18 @@
 -- Copyright (c) 2020-2021 shadmansaleh
 -- MIT license, see LICENSE for more details.
+local require = require('lualine_require').require
 local M = require('lualine.component'):extend()
+local utils = require('lualine.utils.utils')
 
 function M:update_status()
   local component = self.options[1]
-  -- vim veriable component
+  -- vim variable component
   -- accepts g:, v:, t:, w:, b:, o, go:, vo:, to:, wo:, bo:
   -- filters g portion from g:var
   local scope = component:match('[gvtwb]?o?')
   -- filters var portion from g:var
   local var_name = component:sub(#scope + 2, #component)
-  -- Displays nothing when veriable aren't present
+  -- Displays nothing when variable aren't present
   if not (scope and var_name) then
     return ''
   end
@@ -29,7 +31,7 @@ function M:update_status()
   end
   local ok
   ok, return_val = pcall(tostring, return_val)
-  return ok and return_val or ''
+  return ok and utils.stl_escape(return_val) or ''
 end
 
 return M

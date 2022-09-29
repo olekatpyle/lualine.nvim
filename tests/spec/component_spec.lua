@@ -400,7 +400,18 @@ describe('Location component', function()
       component_separators = { left = '', right = '' },
       padding = 0,
     }
-    assert_component('location', opts, '%3l:%-2v')
+    assert_component('location', opts, '  1:1 ')
+    vim.cmd('normal! 9o')
+    assert_component('location', opts, ' 10:1 ')
+    vim.api.nvim_win_set_cursor(0, {5, 0})
+    assert_component('location', opts, '  5:1 ')
+    -- test column number
+    vim.cmd('normal! oTest')
+    assert_component('location', opts, '  6:4 ')
+    -- test column number in line containing cyrillic symbols
+    vim.cmd('normal! oТест')
+    assert_component('location', opts, '  7:4 ')
+    vim.cmd('bdelete!')
   end)
 end)
 
@@ -410,7 +421,12 @@ describe('Progress component', function()
       component_separators = { left = '', right = '' },
       padding = 0,
     }
-    assert_component('progress', opts, '%3p%%')
+    assert_component('progress', opts, 'Top')
+    vim.cmd('normal! 9o')
+    assert_component('progress', opts, 'Bot')
+    vim.api.nvim_win_set_cursor(0, {5, 0})
+    assert_component('progress', opts, '50%%')
+    vim.cmd('bdelete!')
   end)
 end)
 
@@ -445,19 +461,6 @@ describe('FileSize component', function()
 end)
 
 describe('Filename component', function()
-  local function shorten_path(path, target)
-    target = target and target or 40
-    local sep = package.config:sub(1, 1)
-    local winwidth = vim.fn.winwidth(0)
-    local segments = select(2, string.gsub(path, sep, ''))
-    for _ = 0, segments do
-      if winwidth <= 84 or #path > winwidth - target then
-        path = path:gsub(string.format('([^%s])[^%s]+%%%s', sep, sep, sep), '%1' .. sep, 1)
-      end
-    end
-    return path
-  end
-
   it('works', function()
     local opts = build_component_opts {
       component_separators = { left = '', right = '' },
@@ -481,10 +484,25 @@ describe('Filename component', function()
     vim.bo.modified = false
     assert_component('filename', opts, 'test-file.txt')
     vim.bo.modified = true
-    assert_component('filename', opts, 'test-file.txt[+]')
-    vim.bo.modified = false
+    assert_component('filename', opts, 'test-file.txt [+]')
     vim.bo.ro = true
-    assert_component('filename', opts, 'test-file.txt[-]')
+    assert_component('filename', opts, 'test-file.txt [+][-]')
+    vim.bo.modified = false
+    assert_component('filename', opts, 'test-file.txt [-]')
+    vim.cmd(':bdelete!')
+  end)
+
+  it('can show new_file_status', function ()
+    local opts = build_component_opts {
+      component_separators = { left = '', right = '' },
+      padding = 0,
+      newfile_status = true,
+      path = 0,
+    }
+    vim.cmd(':e new-file.txt')
+    assert_component('filename', opts, 'new-file.txt [New]')
+    vim.bo.modified = true
+    assert_component('filename', opts, 'new-file.txt [+][New]')
     vim.cmd(':bdelete!')
   end)
 
@@ -496,7 +514,7 @@ describe('Filename component', function()
       path = 1,
     }
     vim.cmd(':e test-file.txt')
-    assert_component('filename', opts, shorten_path(vim.fn.expand('%:~:.')))
+    assert_component('filename', opts, vim.fn.expand('%:~:.'))
     vim.cmd(':bdelete!')
   end)
 
@@ -506,10 +524,74 @@ describe('Filename component', function()
       padding = 0,
       file_status = false,
       path = 2,
+      shorting_target = 0,
     }
     vim.cmd(':e test-file.txt')
-    assert_component('filename', opts, shorten_path(vim.fn.expand('%:p')))
+    assert_component('filename', opts, vim.fn.expand('%:p'))
     vim.cmd(':bdelete!')
+  end)
+
+  it('shortens path', function()
+    stub(vim.fn, 'expand')
+    vim.fn.expand.on_call_with('%:p').returns('/home/foobar/test/test.lua')
+    stub(vim.fn, 'winwidth')
+    vim.fn.winwidth.on_call_with(0).returns(100)
+
+    local opts = build_component_opts {
+      component_separators = { left = '', right = '' },
+      padding = 0,
+      file_status = false,
+      path = 2,
+      shorting_target = 90,
+    }
+    vim.cmd(':e test-file.txt')
+    assert_component('filename', opts, '/h/f/t/test.lua')
+
+    vim.cmd(':bdelete!')
+    vim.fn.winwidth:revert()
+    vim.fn.expand:revert()
+  end)
+
+  it('shortens path with tilde', function()
+    stub(vim.fn, 'expand')
+    vim.fn.expand.on_call_with('%:p:~').returns('~/test/test.lua')
+    stub(vim.fn, 'winwidth')
+    vim.fn.winwidth.on_call_with(0).returns(100)
+
+    local opts = build_component_opts {
+      component_separators = { left = '', right = '' },
+      padding = 0,
+      file_status = false,
+      path = 3,
+      shorting_target = 90,
+    }
+    vim.cmd(':e test-file.txt')
+    assert_component('filename', opts, '~/t/test.lua')
+
+    vim.cmd(':bdelete!')
+    vim.fn.winwidth:revert()
+    vim.fn.expand:revert()
+  end)
+
+  it('shortens path with hidden directory', function()
+    stub(vim.fn, 'expand')
+    vim.fn.expand.on_call_with('%:p').returns('/home/foobar/.test/test.lua')
+    stub(vim.fn, 'winwidth')
+    vim.fn.winwidth.on_call_with(0).returns(100)
+
+    local opts = build_component_opts {
+      component_separators = { left = '', right = '' },
+      padding = 0,
+      file_status = false,
+      path = 2,
+      shorting_target = 90,
+    }
+    vim.cmd(':e test-file.txt')
+    assert_component('filename', opts, '/h/f/.t/test.lua')
+
+    vim.cmd(':bdelete!')
+    vim.fn.winwidth:revert()
+    vim.fn.expand:revert()
   end)
 end)
 
@@ -583,6 +665,10 @@ describe('Vim option & variable component', function()
 end)
 
 describe('Branch component', function()
+  -- these tests are broken in wsl will look at them later
+  if vim.fn.has('wsl') == 1 then
+    return
+  end
   local tmpdir
   local file
   local git = function(...)
